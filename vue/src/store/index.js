@@ -5,20 +5,38 @@ const store = createStore({
     state: {
         user: {
             data: {
-                name: 'Tom Cook',
-                email: 'tom@example.com',
-                imageUrl:
-                'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
             },
-            token: '123'
+            token: sessionStorage.getItem("TOKEN")
         }
     },
     getters: {},
-    actions: {},
+    actions: {
+        register({commit}, user){
+            return fetch(`http://localhost:8000/api/register`,{
+              headers : {
+                "Content-Type":"application/json",
+                Accept:"application/json"
+              },
+              method : "POST",
+              body: JSON.stringify(user)
+            })
+            .then(res => res.json())
+            .then((res) => {
+                commit('setUser', res);
+                return res;
+            });
+        },
+    },
     mutations: {
         logout : (state) => {
             state.user.data= {};
             state.user.token = null;
+        },
+
+        setUser : (state, userDate) => {
+            state.user.token = userDate.token; 
+            state.user.data = userDate.user;
+            sessionStorage.setItem('TOKEN', userDate.token); //save token returened from laravel
         }
     },
     modules: {} 
